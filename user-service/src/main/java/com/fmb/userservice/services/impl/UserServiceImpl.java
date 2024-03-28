@@ -5,9 +5,11 @@ import com.fmb.userservice.dtos.UserRegisterDto;
 import com.fmb.userservice.mappers.UserMapper;
 import com.fmb.userservice.models.User;
 import com.fmb.userservice.repository.UserRepository;
+import com.fmb.userservice.requests.UserChangePasswordRequest;
 import com.fmb.userservice.services.UserService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,6 +22,7 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public List<UserDto> getAllUsers() {
@@ -45,16 +48,30 @@ public class UserServiceImpl implements UserService {
 
         User user = userMapper.toEntity(userDto);
 
-        // TODO: Codificar la contraseña antes de guardarla
-        user.setPassword(userDto.getPassword());
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
 
         return userMapper.toDto(userRepository.save(user));
+    }
+
+    @Override
+    public void changePassword(UserChangePasswordRequest changePasswordRequest) {
+        log.debug("Changing password: " + changePasswordRequest.toString());
+
+        // TODO: Refactor to a customized exception. (TODO: PasswordChangeRequestException)
+        User user = userRepository.findByEmail(changePasswordRequest.getEmail()).orElseThrow(() -> new IllegalStateException("User not found."));
+
+        if (! passwordEncoder.matches(changePasswordRequest.getCurrentPassword(), user.getPassword())) {
+            throw new IllegalStateException("Email or password doesn't match our records");
+        }
+
+        user.setPassword(passwordEncoder.encode(changePasswordRequest.getNewPassword()));
     }
 
     @Override
     public void deleteUser(Long id) {
         Optional<User> userToDelete = userRepository.findById(id);
 
+        // TODO: Refactor to soft-delete. Delete password when soft deleted.
         userToDelete.ifPresent(userRepository::delete);
     }
 
