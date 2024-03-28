@@ -24,11 +24,11 @@ public class LoginController {
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@RequestBody LoginDto loginDto) {
         try {
-            boolean success = loginService.login(loginDto);
+            LoginResponse loginResponse = loginService.login(loginDto);
 
-            log.debug("Login success: " + loginDto.getEmail());
+            log.debug("Login success: " + loginDto.getEmail() + " " + loginResponse.get_token());
 
-            return new ResponseEntity<>(LoginResponse.builder().success(success).build(), HttpStatus.OK);
+            return new ResponseEntity<>(loginResponse, HttpStatus.OK);
 
         } catch (IllegalStateException e) {
             log.debug("Something went wrong while login");

@@ -1,8 +1,9 @@
 package com.fmb.userservice.services;
 
 import com.fmb.userservice.dtos.LoginDto;
+import com.fmb.userservice.responses.LoginResponse;
 
 public interface LoginService {
 
-    boolean login(LoginDto loginDto);
+    LoginResponse login(LoginDto loginDto);
 }
