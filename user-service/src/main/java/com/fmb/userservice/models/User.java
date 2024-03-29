@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 @NoArgsConstructor
 public class User implements UserDetails {
+    private final String ROLE_GRANTED_AUTHORITY_PREFIX = "_ROLE";
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -40,7 +41,7 @@ public class User implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return roles.stream()
-                .map(role -> new SimpleGrantedAuthority(role.getName()))
+                .map(role -> new SimpleGrantedAuthority(ROLE_GRANTED_AUTHORITY_PREFIX + role.getName()))
                 .collect(Collectors.toList());
     }
 

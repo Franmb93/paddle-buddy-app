@@ -3,17 +3,22 @@ package com.fmb.userservice.services.impl;
 import com.fmb.userservice.dtos.UserDto;
 import com.fmb.userservice.dtos.UserRegisterDto;
 import com.fmb.userservice.mappers.UserMapper;
+import com.fmb.userservice.models.Role;
 import com.fmb.userservice.models.User;
+import com.fmb.userservice.repository.RoleRepository;
 import com.fmb.userservice.repository.UserRepository;
 import com.fmb.userservice.requests.UserChangePasswordRequest;
+import com.fmb.userservice.services.RoleService;
 import com.fmb.userservice.services.UserService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 @AllArgsConstructor
@@ -21,6 +26,7 @@ import java.util.Optional;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+    private final RoleService roleService;
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
 
@@ -46,10 +52,16 @@ public class UserServiceImpl implements UserService {
             throw new IllegalStateException("User already exists.");
         }
 
-        User user = userMapper.toEntity(userDto);
 
+
+        User user = userMapper.toEntity(userDto);
         user.setPassword(passwordEncoder.encode(userDto.getPassword()));
 
+        Role userRole = roleService.getRoleByName("USER");
+        Set<Role> roles = new HashSet<>();
+        roles.add(userRole);
+
+        user.setRoles(roles);
         return userMapper.toDto(userRepository.save(user));
     }
 

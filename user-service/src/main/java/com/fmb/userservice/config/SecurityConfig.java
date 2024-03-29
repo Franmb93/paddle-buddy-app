@@ -38,12 +38,13 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/v1/login").permitAll()
-                        .requestMatchers(HttpMethod.POST,"/api/v1/user").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/admin/*").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/v1/user").permitAll()
+                        .requestMatchers("/api/v1/user").hasAnyRole("ADMIN", "USER")
+                        .requestMatchers("/api/v1/login").permitAll()
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class).csrf(AbstractHttpConfigurer::disable);
 
         return http.build();
     }
-
-
 }
