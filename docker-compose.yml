@@ -31,5 +31,16 @@ services:
     volumes:
       - user-service-db:/var/lib/mysql
 
+  mysql-friend-service:
+    image: mysql:5.7
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: friend_service
+    volumes:
+      - friend-service-db:/var/lib/mysql
+
 volumes:
   user-service-db:
+  friend-service-db:
